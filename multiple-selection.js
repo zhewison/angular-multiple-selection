@@ -55,7 +55,13 @@ angular.module('multipleSelection', [])
 
                 $scope.setSelected = function () {
                     $scope.$emit('multiple-select:selection', $scope);
-                }
+                };
+
+                $scope.$on('multiple-select:clear-selection', function () {
+                    $scope.isSelectable = true;
+                    $scope.isSelecting = false;
+                    $scope.isSelected = false;
+                });
 
             }
         };
