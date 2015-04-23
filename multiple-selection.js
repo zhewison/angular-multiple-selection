@@ -201,7 +201,6 @@ angular.module('multipleSelection', [])
                                 if (childs[i].scope().isSelected === false) {
                                     childs[i].scope().isSelected = true;
                                     childs[i].scope().setSelected();
-                                    childs[i].scope().$apply();
                                 }
                             }
                         }
@@ -214,12 +213,14 @@ angular.module('multipleSelection', [])
                 element.on('mousedown', function (event) {
                     // Prevent default dragging of selected content
                     event.preventDefault();
+
                     if (!event.ctrlKey) {
                         // Skip all selected or selecting items
                         var childs = getSelectableElements(element);
                         for (var i = 0; i < childs.length; i++) {
-                            if (childs[i].scope().isSelecting === true || childs[i].scope().isSelected ===
-                                true) {
+                            if ((childs[i].scope().isSelecting === true || childs[i].scope().isSelected ===
+                                    true) && event.target
+                                .type !== 'checkbox') {
                                 childs[i].scope().isSelecting = false;
                                 childs[i].scope().isSelected = false;
                                 childs[i].scope().setSelected();
