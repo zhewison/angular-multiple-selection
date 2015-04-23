@@ -11,7 +11,7 @@ function getSelectableElements(element) {
         if (child.scope().isSelectable) {
             out.push(child);
         } else {
-            if (child.scope().$id!=element.scope().$id && child.scope().isSelectableZone === true) {
+            if (child.scope().$id != element.scope().$id && child.scope().isSelectableZone === true) {
 
             } else {
                 out = out.concat(getSelectableElements(child));
@@ -40,49 +40,31 @@ function offset(element) {
     };
 }
 angular.module('multipleSelection', [])
-    .directive('multipleSelectionItem', [function() {
+    .directive('multipleSelectionItem', [function () {
         return {
             scope: true,
             restrict: 'A',
-            link: function(scope, element, iAttrs, controller) {
+            link: function (scope, element, iAttrs, controller) {
 
                 scope.isSelectable = true;
                 scope.isSelecting = false;
                 scope.isSelected = false;
 
-                element.on('mousedown', function(event) {
-                    if (element.scope().isSelected) {
-                        if (event.ctrlKey) {
-                            element.scope().isSelected = false;
-                            element.scope().$apply();
-                        }
-                    } else {
-                        if (!event.ctrlKey) {
-                            var childs = getSelectableElements(element.parent());
-                            for (var i = 0; i < childs.length; i++) {
-                                if (childs[i].scope().isSelectable) {
-                                    if (childs[i].scope().isSelecting === true || childs[i].scope().isSelected === true) {
-                                        childs[i].scope().isSelecting = false;
-                                        childs[i].scope().isSelected = false;
-                                        childs[i].scope().$apply();
-                                    }
-                                }
-                            }
-                        }
-                        element.scope().isSelected = true;
-                        element.scope().$apply();
+            },
+            controller: function ($scope) {
 
-                    }
-                    event.stopPropagation();
-                });
+                $scope.setSelected = function () {
+                    $scope.$emit('multiple-select:selection', $scope);
+                }
+
             }
         };
     }])
-    .directive('multipleSelectionZone', ['$document', function($document) {
+    .directive('multipleSelectionZone', ['$document', function ($document, $rootScope) {
         return {
             scope: true,
             restrict: 'A',
-            link: function(scope, element, iAttrs, controller) {
+            link: function (scope, element, iAttrs, controller) {
 
                 scope.isSelectableZone = true;
 
@@ -97,8 +79,12 @@ angular.module('multipleSelection', [])
                  * @return {Boolean} is hitting
                  */
                 function checkElementHitting(box1, box2) {
-                    return (box2.beginX <= box1.beginX && box1.beginX <= box2.endX || box1.beginX <= box2.beginX && box2.beginX <= box1.endX) &&
-                        (box2.beginY <= box1.beginY && box1.beginY <= box2.endY || box1.beginY <= box2.beginY && box2.beginY <= box1.endY);
+                    return (box2.beginX <= box1.beginX && box1.beginX <= box2.endX || box1.beginX <=
+                            box2.beginX && box2.beginX <=
+                            box1.endX) &&
+                        (box2.beginY <= box1.beginY && box1.beginY <= box2.endY || box1.beginY <= box2.beginY &&
+                            box2.beginY <=
+                            box1.endY);
                 }
 
                 /**
@@ -165,7 +151,11 @@ angular.module('multipleSelection', [])
                     // Check items is selecting
                     var childs = getSelectableElements(element);
                     for (var i = 0; i < childs.length; i++) {
-                        if (checkElementHitting(transformBox(offset(childs[i][0]).left, offset(childs[i][0]).top, offset(childs[i][0]).left + childs[i].prop('offsetWidth'), offset(childs[i][0]).top + childs[i].prop('offsetHeight')), transformBox(startX, startY, event.pageX, event.pageY))) {
+                        if (checkElementHitting(transformBox(offset(childs[i][0]).left, offset(childs[i]
+                                [0]).top, offset(
+                                childs[i][0]).left + childs[i].prop('offsetWidth'), offset(
+                                childs[i][0]).top + childs[i].prop(
+                                'offsetHeight')), transformBox(startX, startY, event.pageX, event.pageY))) {
                             if (childs[i].scope().isSelecting === false) {
                                 childs[i].scope().isSelecting = true;
                                 childs[i].scope().$apply();
@@ -197,12 +187,20 @@ angular.module('multipleSelection', [])
                         if (childs[i].scope().isSelecting === true) {
                             childs[i].scope().isSelecting = false;
 
-                            childs[i].scope().isSelected = event.ctrlKey ? !childs[i].scope().isSelected : true;
+                            childs[i].scope().isSelected = event.ctrlKey ? !childs[i].scope().isSelected :
+                                true;
+                            childs[i].scope().setSelected();
                             childs[i].scope().$apply();
                         } else {
-                            if (checkElementHitting(transformBox(childs[i].prop('offsetLeft'), childs[i].prop('offsetTop'), childs[i].prop('offsetLeft') + childs[i].prop('offsetWidth'), childs[i].prop('offsetTop') + childs[i].prop('offsetHeight')), transformBox(event.pageX, event.pageY, event.pageX, event.pageY))) {
+                            if (checkElementHitting(transformBox(childs[i].prop('offsetLeft'), childs[i]
+                                    .prop('offsetTop'),
+                                    childs[i].prop('offsetLeft') + childs[i].prop('offsetWidth'),
+                                    childs[i].prop('offsetTop') +
+                                    childs[i].prop('offsetHeight')), transformBox(event.pageX,
+                                    event.pageY, event.pageX, event.pageY))) {
                                 if (childs[i].scope().isSelected === false) {
                                     childs[i].scope().isSelected = true;
+                                    childs[i].scope().setSelected();
                                     childs[i].scope().$apply();
                                 }
                             }
@@ -213,16 +211,18 @@ angular.module('multipleSelection', [])
                     $document.off('mouseup', mouseup);
                 }
 
-                element.on('mousedown', function(event) {
+                element.on('mousedown', function (event) {
                     // Prevent default dragging of selected content
                     event.preventDefault();
                     if (!event.ctrlKey) {
                         // Skip all selected or selecting items
                         var childs = getSelectableElements(element);
                         for (var i = 0; i < childs.length; i++) {
-                            if (childs[i].scope().isSelecting === true || childs[i].scope().isSelected === true) {
+                            if (childs[i].scope().isSelecting === true || childs[i].scope().isSelected ===
+                                true) {
                                 childs[i].scope().isSelecting = false;
                                 childs[i].scope().isSelected = false;
+                                childs[i].scope().setSelected();
                                 childs[i].scope().$apply();
                             }
                         }
