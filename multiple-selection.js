@@ -55,7 +55,6 @@ angular.module('multipleSelection', [])
 
                 $scope.setSelected = function () {
                     $scope.$emit('multiple-select:selection', $scope);
-                    console.log('set selected', $scope);
                 };
 
                 $scope.$on('multiple-select:clear-selection', function () {
@@ -208,7 +207,6 @@ angular.module('multipleSelection', [])
                                 if (childs[i].scope().isSelected === false) {
                                     childs[i].scope().isSelected = true;
                                     childs[i].scope().setSelected();
-                                    childs[i].scope().$apply();
                                 }
                             }
                         }
