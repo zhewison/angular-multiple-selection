@@ -5,7 +5,7 @@
  */
 function getSelectableElements(element) {
     var out = [];
-    var childs = element.children();
+    var childs = element.find('.media-thumbs').children();
     for (var i = 0; i < childs.length; i++) {
         var child = angular.element(childs[i]);
         if (child.scope().isSelectable) {
@@ -164,18 +164,18 @@ angular.module('multipleSelection', [])
                                 'offsetHeight')), transformBox(startX, startY, event.pageX, event.pageY))) {
                             if (childs[i].scope().isSelecting === false) {
                                 childs[i].scope().isSelecting = true;
+                                childs[i].scope().setSelected();
                                 childs[i].scope().$apply();
                             }
                         } else {
                             if (childs[i].scope().isSelecting === true) {
                                 childs[i].scope().isSelecting = false;
+                                childs[i].scope().setSelected();
                                 childs[i].scope().$apply();
                             }
                         }
                     }
                 }
-
-
 
                 /**
                  * Event on Mouse up
@@ -192,7 +192,6 @@ angular.module('multipleSelection', [])
                     for (var i = 0; i < childs.length; i++) {
                         if (childs[i].scope().isSelecting === true) {
                             childs[i].scope().isSelecting = false;
-
                             childs[i].scope().isSelected = event.ctrlKey ? !childs[i].scope().isSelected :
                                 true;
                             childs[i].scope().setSelected();
@@ -207,6 +206,9 @@ angular.module('multipleSelection', [])
                                 if (childs[i].scope().isSelected === false) {
                                     childs[i].scope().isSelected = true;
                                     childs[i].scope().setSelected();
+                                } else {
+                                    childs[i].scope().isSelected = false;
+                                    childs[i].scope().setSelected();
                                 }
                             }
                         }
@@ -220,13 +222,16 @@ angular.module('multipleSelection', [])
                     // Prevent default dragging of selected content
                     event.preventDefault();
 
-                    if (!event.ctrlKey) {
+                    if (event.target.nodeName === 'FIGCAPTION') {
+                        return;
+                    }
+
+                    if ($(event.target).hasClass('app') || $(event.target).hasClass('media-thumbs')) {
                         // Skip all selected or selecting items
                         var childs = getSelectableElements(element);
                         for (var i = 0; i < childs.length; i++) {
                             if ((childs[i].scope().isSelecting === true || childs[i].scope().isSelected ===
-                                    true) && event.target
-                                .type !== 'checkbox') {
+                                    true)) {
                                 childs[i].scope().isSelecting = false;
                                 childs[i].scope().isSelected = false;
                                 childs[i].scope().setSelected();
@@ -234,6 +239,7 @@ angular.module('multipleSelection', [])
                             }
                         }
                     }
+
                     // Update start coordinates
                     startX = event.pageX;
                     startY = event.pageY;
