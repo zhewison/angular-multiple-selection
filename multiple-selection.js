@@ -206,9 +206,11 @@ angular.module('multipleSelection', [])
                                 if (childs[i].scope().isSelected === false) {
                                     childs[i].scope().isSelected = true;
                                     childs[i].scope().setSelected();
+                                    childs[i].scope().$apply();
                                 } else {
                                     childs[i].scope().isSelected = false;
                                     childs[i].scope().setSelected();
+                                    childs[i].scope().$apply();
                                 }
                             }
                         }
