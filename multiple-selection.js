@@ -224,7 +224,7 @@ angular.module('multipleSelection', [])
                     // Prevent default dragging of selected content
                     event.preventDefault();
 
-                    if (event.target.nodeName === 'FIGCAPTION') {
+                    if (event.target.nodeName === 'FIGCAPTION' || event.target.className === 'information') {
                         return;
                     }
 
